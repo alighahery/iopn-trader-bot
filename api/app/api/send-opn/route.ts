@@ -22,14 +22,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid private key" }, { status: 400 })
     }
 
-    // provider without explicit chainId — auto-detect from RPC
+    // provider بدون chainId — بذار خودش detect کنه
     const provider = new JsonRpcProvider(RPC_URL)
     const wallet   = new Wallet(privateKey, provider)
 
     console.log("sender:", wallet.address)
     console.log("to:", to, "amount:", amount)
 
-    // check balance
+    // balance چک
     const balance = await provider.getBalance(wallet.address)
     console.log("balance:", balance.toString())
 
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error)
     console.error("Transaction error:", msg)
-    // return full error details
+    // خطا رو کامل برمیگردونیم
     return NextResponse.json({
       error: msg,
       debug: { to, amount, hasKey: !!privateKey }

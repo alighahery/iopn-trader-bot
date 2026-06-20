@@ -1,34 +1,43 @@
 import { Wallet } from "ethers"
-import { NextResponse } from "next/server"
+import { type NextRequest, NextResponse } from "next/server"
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   try {
-    const wallet = Wallet.createRandom()
+    const body = await request.json().catch(() => ({}))
+    const { importPrivateKey } = body
 
-    // Return wallet address and private key
-    return NextResponse.json({
-      address: wallet.address,
-      privateKey: wallet.privateKey,
-    })
+    let wallet: Wallet
+
+    if (importPrivateKey) {
+      // ─── Import existing wallet ───────────────────────────
+      let pk = importPrivateKey.trim()
+      if (!pk.startsWith("0x")) pk = "0x" + pk
+      if (!/^0x[a-fA-F0-9]{64}$/.test(pk)) {
+        return NextResponse.json({ error: "Invalid private key format" }, { status: 400 })
+      }
+      wallet = new Wallet(pk)
+      return NextResponse.json({
+        address:    wallet.address,
+        privateKey: wallet.privateKey,
+        imported:   true,
+      })
+    } else {
+      // ─── Create new wallet ────────────────────────────────
+      wallet = Wallet.createRandom()
+      return NextResponse.json({
+        address:    wallet.address,
+        privateKey: wallet.privateKey,
+        imported:   false,
+      })
+    }
+
   } catch (error) {
-    console.error("Wallet creation error:", error)
-    const errorMessage = error instanceof Error ? error.message : "Unknown error"
-    return NextResponse.json({ error: `Wallet creation failed: ${errorMessage}` }, { status: 500 })
+    const msg = error instanceof Error ? error.message : "Unknown error"
+    console.error("Wallet error:", msg)
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
 }
 
 export async function GET() {
-  return NextResponse.json({ error: "Only POST" }, { status: 405 })
-}
-
-export async function PUT() {
-  return NextResponse.json({ error: "Only POST" }, { status: 405 })
-}
-
-export async function DELETE() {
-  return NextResponse.json({ error: "Only POST" }, { status: 405 })
-}
-
-export async function PATCH() {
-  return NextResponse.json({ error: "Only POST" }, { status: 405 })
+  return NextResponse.json({ error: "Use POST" }, { status: 405 })
 }

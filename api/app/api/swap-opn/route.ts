@@ -26,7 +26,7 @@ const ERC20_ABI = [
   "function allowance(address owner, address spender) external view returns (uint256)",
 ]
 
-// WOPN follows WETH pattern: deposit/withdraw
+// WOPN = WETH pattern: deposit/withdraw
 const WOPN_ABI = [
   "function deposit() external payable",
   "function withdraw(uint256 amount) external",
@@ -63,19 +63,19 @@ export async function POST(request: NextRequest) {
 
     let tx
 
-    // ─── OPN → WOPN: wrap using deposit() ────────────────────────
+    // ─── OPN → WOPN: فقط deposit() ───────────────────────────
     if (!inInfo.address && outKey === "WOPN") {
       const wopn = new Contract(WOPN_ADDRESS, WOPN_ABI, wallet)
       tx = await wopn.deposit({ value: amountWei, gasPrice, gasLimit: 60000n })
     }
 
-    // ─── WOPN → OPN: unwrap using withdraw() ─────────────────────
+    // ─── WOPN → OPN: فقط withdraw() ──────────────────────────
     else if (inKey === "WOPN" && !outInfo.address) {
       const wopn = new Contract(WOPN_ADDRESS, WOPN_ABI, wallet)
       tx = await wopn.withdraw(amountWei, { gasPrice, gasLimit: 60000n })
     }
 
-    // ─── OPN → Token (non-WOPN) ──────────────────────────────────
+    // ─── OPN → Token (غیر WOPN) ───────────────────────────────
     else if (!inInfo.address) {
       const router = new Contract(ROUTER_ADDRESS, ROUTER_ABI, wallet)
       const path   = [WOPN_ADDRESS, outInfo.address!]
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ─── Token → OPN ─────────────────────────────────────────────
+    // ─── Token → OPN ──────────────────────────────────────────
     else if (!outInfo.address) {
       const router = new Contract(ROUTER_ADDRESS, ROUTER_ABI, wallet)
       const erc20  = new Contract(inInfo.address!, ERC20_ABI, wallet)
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ─── Token → Token (via WOPN) ────────────────────────────────
+    // ─── Token → Token (via WOPN) ─────────────────────────────
     else {
       const router = new Contract(ROUTER_ADDRESS, ROUTER_ABI, wallet)
       const erc20  = new Contract(inInfo.address!, ERC20_ABI, wallet)

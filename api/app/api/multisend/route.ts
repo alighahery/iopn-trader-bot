@@ -28,13 +28,13 @@ export async function POST(request: NextRequest) {
       try {
         let tx
         if (!tokenAddress) {
-          // native OPN transfer
+          // Native OPN
           tx = await wallet.sendTransaction({
             to: r.to,
             value: parseEther(r.amount.toString()),
           })
         } else {
-          // ERC20 token transfer
+          // ERC20 token
           const token    = new Contract(tokenAddress, ERC20_ABI, wallet)
           const decimals = await token.decimals().catch(() => 18)
           const amount   = parseUnits(r.amount.toString(), decimals)
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
         const msg = e instanceof Error ? e.message : "error"
         results.push({ to: r.to, amount: r.amount, status: "failed", error: msg })
       }
-      // small delay between transactions to avoid nonce conflicts
+      // کمی صبر بین تراکنش‌ها
       await new Promise(r => setTimeout(r, 1500))
     }
 
