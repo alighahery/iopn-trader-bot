@@ -100,6 +100,9 @@ No environment variables required for the API.
 | `VERCEL_SEND_ERC20_URL` | `https://YOUR-DOMAIN.vercel.app/api/send-erc20` |
 | `VERCEL_SWAP_URL` | `https://YOUR-DOMAIN.vercel.app/api/swap-opn` |
 | `VERCEL_MULTISEND_URL` | `https://YOUR-DOMAIN.vercel.app/api/multisend` |
+| `VERCEL_ADD_LIQUIDITY_URL` | `https://YOUR-DOMAIN.vercel.app/api/add-liquidity` |
+| `VERCEL_REMOVE_LIQUIDITY_URL` | `https://YOUR-DOMAIN.vercel.app/api/remove-liquidity` |
+
 
 4. Register webhook:
 ```
