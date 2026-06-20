@@ -14,6 +14,8 @@ Cloudflare Worker          Vercel API (Next.js)
   - KV wallet storage      - /api/send-erc20
   - Balance queries        - /api/swap-opn
                            - /api/multisend
+                           - /api/add-liquidity
+                           - /api/remove-liquidity
                                 │
                                 ▼
                          IOPn Testnet RPC
@@ -39,6 +41,10 @@ Cloudflare Worker          Vercel API (Next.js)
 | `/multisend` | Batch send to multiple addresses |
 | `/network` | Network info for MetaMask |
 | `/faucet` | Link to testnet faucet |
+| `/addliquidity <A> <B> <amtA> <amtB>` | Add liquidity (symbol or 0x address) |
+| `/removeliquidity <A> <B> <percent>` | Remove `percent`% of your LP |
+| `/mytokens` | Show **every** token in the wallet (built-in + created + any pool token) with balance > 0 |
+| `/mypools` | Your LP positions with pool share and underlying amounts |
 
 ## Supported Tokens
 
@@ -117,7 +123,14 @@ https://YOUR-WORKER.workers.dev/register?secret=YOUR_ADMIN_SECRET
 0xAddress2
 0xAddress3
 ```
-
+## How token discovery works (no full log scan)
+The IOPn testnet RPC caps `eth_getLogs` at a 10,000-block range, so a full
+history scan isn't practical in a Worker. `/mytokens` instead unions:
+1. Built-in `TOKEN_LIST`
+2. Tokens the user created via `/deploytoken` (saved in KV on deploy)
+3. Every token that appears in a DEX factory pool (batched `allPairs` →
+   `token0`/`token1`)
+   
 ## Tech Stack
 
 - **Cloudflare Workers** — Serverless edge runtime
